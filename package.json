@@ -1,0 +1,39 @@
+{
+  "name": "be-hogan-compiler",
+  "version": "1.0.0",
+  "description": "Behance Hogan Compiler",
+  "main": "src",
+  "scripts": {
+    "test": "npm run lint && npm run test:once",
+    "lint": "eslint src/**/*.js test/**/*.js",
+    "test:once": "env JASMINE_CONFIG_PATH=test/jasmine.json jasmine",
+    "test:inspect": "env JASMINE_CONFIG_PATH=test/jasmine.json node --inspect --debug-brk ./node_modules/.bin/jasmine",
+    "test:watch": "env JASMINE_CONFIG_PATH=test/jasmine.json nodemon --exec jasmine"
+  },
+  "keywords": [
+    "hogan",
+    "renderer",
+    "partial",
+    "cached"
+  ],
+  "author": "nemtsov@gmail.com",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/behance/be-hogan-compiler.git"
+  },
+  "devDependencies": {
+    "eslint": "^3.16.1",
+    "eslint-plugin-behance": "^1.1.0",
+    "eslint-preset-behance": "^6.0.0",
+    "jasmine": "^2.5.3",
+    "jasmine-node": "^1.14.5",
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "assets-require": "github:behance/assets-require#v1.1.0"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  }
+}
