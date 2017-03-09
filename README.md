@@ -6,7 +6,7 @@ This Browser / Node.js library is a helper for loading mustache templates via Ho
 ## Features
 
   - caching & asynchronous loading
-  - partials resolution
+  - retrieval and resolution of partials
   - deeply nested lambdas (e.g., i18n)
   - retrieve the files any way you like via the driver (e.g, XHR in the browser and fs in Node.js)
 
