@@ -31,7 +31,7 @@ describe('be-hogan-compiler', function() {
   });
 
   describe('addLambda', function() {
-    it('should add a lambda to the tempalte', function(done) {
+    it('should add a lambda to the template', function(done) {
       const data = {
         i18n() {
           return (text) => {
