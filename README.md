@@ -7,7 +7,6 @@ This Browser / Node.js library is a helper for loading mustache templates via Ho
 
   - caching & asynchronous loading
   - retrieval and resolution of partials
-  - deeply nested lambdas (e.g., i18n)
   - retrieve the files any way you like via the driver (e.g, XHR in the browser and fs in Node.js)
 
 
@@ -17,15 +16,15 @@ This Browser / Node.js library is a helper for loading mustache templates via Ho
 const hoganCompiler = require('be-hogan-compiler');
 
 // Bring Your Own Driver
-const fsReadFile = require('be-hogan-compiler/src/drivers/fs');
+const fsDriver = require('be-hogan-compiler/src/drivers/fs');
 const templatesPath = '/tmp';
 
-const compiler = hoganCompiler.create(fsReadFile, templatesPath/*, options */);
+const compiler = hoganCompiler.create(fsDriver, templatesPath/*, options */);
 
-compiler.addLambda('i18n', () => {
-  return (text) => {
-    return my_18n_library.tranlate(text);
-  };
+// When using `options.isCached`, you may want to populate the cache before making `.compile()` calls
+compiler.populateCache()
+.then(() => {
+  console.log('Cache has been populated');
 });
 
 // provide just the name, no need for the template dir or the extension
@@ -40,7 +39,7 @@ compiler.compile('my_template')
 
 #### Create Arguments:
 
-  - `readFile` - function that will be used to read files. Must return a Promise. Defaults to a promised version of fs.readFile.
+  - `driver` - will be used to read files. All methods must return a Promise. See `src/drivers/fs` for an example.
   - `templatesPath` - absolute path to the templates
   - `options.extension` - defaults to `mustache` (e.g., `template.mustache`)
   - `options.isCached` - cache compiled templates in the created instance

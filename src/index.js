@@ -1,11 +1,17 @@
 const Hogan = require('assets-require/hogan');
 
 class HoganCompiler {
-  constructor(readFile, templatesPath, options = {}) {
+  constructor(driver, templatesPath, options = {}) {
+    this._driver = driver;
+    this._templatesPath = templatesPath;
     this._templatePromises = {};
 
+    this._options = Object.assign({}, options, {
+      extension: 'mustache',
+    });
+
     const readTemplate = (name) => {
-      return readFile(`${templatesPath}/${name}.${options.extension || 'mustache'}`)
+      return driver.readFile(`${templatesPath}/${name}.${this._options.extension}`)
       .then(file => Hogan.compile(file));
     };
 
@@ -18,6 +24,11 @@ class HoganCompiler {
     };
 
     this._readTemplate = options.isCached ? readCachedTemplate : readTemplate;
+  }
+
+  populateCache() {
+    return this._driver.recursiveReaddir(this._templatesPath, this._options.extension)
+    .then(files => files.map((file) => this._readTemplate(file)));
   }
 
   compile(name) {
