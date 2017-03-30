@@ -2,7 +2,6 @@ const Hogan = require('assets-require/hogan');
 
 class HoganCompiler {
   constructor(readFile, templatesPath, options = {}) {
-    this._lambdas = {};
     this._templatePromises = {};
 
     const readTemplate = (name) => {
@@ -21,23 +20,15 @@ class HoganCompiler {
     this._readTemplate = options.isCached ? readCachedTemplate : readTemplate;
   }
 
-  addLambda(name, lambda) {
-    this._lambdas[name] = lambda;
-  }
-
   compile(name) {
     return this._readTemplate(name)
     .then(template => {
       return this._readPartials(name, template)
       .then((requiredPartials) => {
-        const lambdas = this._lambdas;
-
         // render internal - hook that Hogan.js designed for overrides
         template.ri = function(context, partials, indent) {
-          context.unshift(lambdas);
-          return this.r(context, Object.assign({}, requiredPartials, partials), indent);
+          return this.r(context, requiredPartials, indent);
         };
-
         return template;
       });
     });

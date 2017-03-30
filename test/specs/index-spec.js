@@ -32,15 +32,17 @@ describe('be-hogan-compiler', function() {
 
   describe('addLambda', function() {
     it('should add a lambda to the tempalte', function(done) {
-      this.compiler.addLambda('i18n', () => {
-        return (text) => {
-          return /Hello/.test(text) ? 'Bonjour' : text;
-        };
-      });
+      const data = {
+        i18n() {
+          return (text) => {
+            return /Hello/.test(text) ? 'Bonjour' : text;
+          };
+        },
+      };
 
       this.compiler.compile('i18n')
       .then((template) => {
-        expect(template.render()).toEqual('Bonjour, world!\n');
+        expect(template.render(data)).toEqual('Bonjour, world!\n');
         done();
       }, done.fail);
     });
@@ -65,15 +67,17 @@ describe('be-hogan-compiler', function() {
   });
 
   it('should render a template with inheritance and deep lambdas', function(done) {
-    this.compiler.addLambda('i18n', () => {
-      return (text) => {
-        return /Hello/.test(text) ? 'Здравствуйте' : text;
-      };
-    });
+    const data = {
+      i18n() {
+        return (text) => {
+          return /Hello/.test(text) ? 'Здравствуйте' : text;
+        };
+      },
+    };
 
     this.compiler.compile('inheritance/parent')
     .then((template) => {
-      expect(template.render())
+      expect(template.render(data))
       .toEqual([
         '<parent>',
         '<child id="83">',
