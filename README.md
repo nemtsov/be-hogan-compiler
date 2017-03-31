@@ -23,9 +23,7 @@ const compiler = hoganCompiler.create(fsDriver, templatesPath/*, options */);
 
 // When using `options.isCached`, you may want to populate the cache before making `.compile()` calls
 compiler.populateCache()
-.then(() => {
-  console.log('Cache has been populated');
-});
+.then(() => console.log('Cache has been populated'));
 
 // provide just the name, no need for the template dir or the extension
 compiler.compile('my_template')
