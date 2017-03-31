@@ -3,5 +3,9 @@
 
   "spec_files": [
     "**/*spec.js"
+  ],
+
+  "helpers": [
+    "../../node_modules/jasmine-promises/dist/jasmine-promises.js"
   ]
 }

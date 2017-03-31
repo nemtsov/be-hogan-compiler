@@ -1,11 +1,12 @@
 const hoganCompiler = require('../../src');
-const fsReadFile = require('../../src/drivers/fs');
+const fsDriver = require('../../src/drivers/fs');
 
 const FIXTURES_PATH = `${__dirname}/../fixtures`;
 
 describe('be-hogan-compiler', function() {
   beforeEach(function() {
-    this.compiler = hoganCompiler.create(fsReadFile, FIXTURES_PATH);
+    this.driver = fsDriver;
+    this.compiler = hoganCompiler.create(this.driver, FIXTURES_PATH);
   });
 
   it('should compile and render a template', function(done) {
@@ -50,17 +51,36 @@ describe('be-hogan-compiler', function() {
 
   describe('isCached', function() {
     it('should not compile the same template more than once', function(done) {
-      const fakeReadFile = jasmine.createSpy('readFile')
-      .and.returnValue(Promise.resolve('fake_file'));
+      const fakeDriver = jasmine.createSpyObj('fsDriver', ['readFile']);
+      fakeDriver.readFile.and.returnValue(Promise.resolve('fake_file'));
 
-      const compiler = hoganCompiler.create(fakeReadFile, '', { isCached: true });
+      const compiler = hoganCompiler.create(fakeDriver, '', { isCached: true });
 
       compiler.compile('a')
       .then(() => {
         compiler.compile('a')
         .then(() => {
-          expect(fakeReadFile.calls.count()).toEqual(1);
+          expect(fakeDriver.readFile.calls.count()).toEqual(1);
           done();
+        });
+      });
+    });
+
+    describe('populateCache', function() {
+      it('should populate cache', function() {
+        this.compiler = hoganCompiler.create(this.driver, FIXTURES_PATH, { isCached: true });
+
+        return this.compiler.populateCache()
+        .then(() => {
+          spyOn(this.driver, 'readFile').and.callThrough();
+
+          return Promise.all([
+            this.compiler.compile('bNumA'),
+            this.compiler.compile('partialParent'),
+          ]);
+        })
+        .then(() => {
+          expect(this.driver.readFile.calls.count()).toEqual(0);
         });
       });
     });
