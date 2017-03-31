@@ -83,6 +83,16 @@ describe('be-hogan-compiler', function() {
           expect(this.driver.readFile.calls.count()).toEqual(0);
         });
       });
+
+      it('should return a ENOENT on a non-existant directory', function() {
+        this.compiler = hoganCompiler.create(this.driver, `${FIXTURES_PATH}/__UNDEFINED__`, { isCached: true });
+        return this.compiler.populateCache()
+        .catch((err) => {
+          if (!/ENOENT/.test(err.message)) {
+            throw err;
+          }
+        });
+      });
     });
   });
 
