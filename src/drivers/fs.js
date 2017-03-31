@@ -16,6 +16,10 @@ exports.recursiveReaddir = function(dirname, ext) {
 
   return new Promise((resolve, reject) => {
     readdir(dirname, (err, files) => {
+      if (err) {
+        return reject(err);
+      }
+
       const filenames = [];
 
       files.forEach((file) => {
@@ -24,7 +28,7 @@ exports.recursiveReaddir = function(dirname, ext) {
         }
       });
 
-      err ? reject(err) : resolve(filenames);
+      resolve(filenames);
     });
   });
 };
