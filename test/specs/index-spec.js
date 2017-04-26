@@ -50,19 +50,48 @@ describe('be-hogan-compiler', function() {
   });
 
   describe('isCached', function() {
-    it('should not compile the same template more than once', function(done) {
+    it('should not compile the same template more than once', function() {
       const fakeDriver = jasmine.createSpyObj('fsDriver', ['readFile']);
       fakeDriver.readFile.and.returnValue(Promise.resolve('fake_file'));
 
       const compiler = hoganCompiler.create(fakeDriver, '', { isCached: true });
 
-      compiler.compile('a')
-      .then(() => {
-        compiler.compile('a')
-        .then(() => {
-          expect(fakeDriver.readFile.calls.count()).toEqual(1);
-          done();
+      return compiler.compile('a')
+      .then((template) => {
+        // The idea is that in order to add partials to a template,
+        // the compiler will have to update the `ri` function. When the template
+        // is not cached, the second call will replcae the `ri` with a new one.
+        //
+        // Although this is knowledge of the internals of Hogan, it is knowledge
+        // that both the test and HoganCompiler share. Alternatively, we could
+        // have spied on _compileWithoutPartials, but then changing the name of
+        // that private method (while refactoring) would require a test change.
+        const firstCallRi = template.ri;
+
+        return compiler.compile('a')
+        .then((template) => {
+          expect(firstCallRi === template.ri).toBeTruthy();
         });
+      });
+    });
+
+    it('should not read the same template more than once', function() {
+      const fakeDriver = jasmine.createSpyObj('fsDriver', ['readFile']);
+      fakeDriver.readFile.and.returnValues(
+        Promise.resolve('(a) {{>b}}'),
+        Promise.resolve('(b)'),
+        Promise.resolve('(c) {{>b}}'),
+        Promise.resolve('(b)')
+      );
+
+      const compiler = hoganCompiler.create(fakeDriver, '', { isCached: true });
+
+      return compiler.compile('a')
+      .then(() => compiler.compile('c'))
+      .then(() => {
+        // 1. readFile('a'), 2. readFile('b'), 3. readFile('c')
+        // Note: the `{{>b}}` partial in 'c' template was cached, since 'a' had the same partial
+        expect(fakeDriver.readFile.calls.count()).toEqual(3);
       });
     });
 
